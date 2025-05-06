@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cari File</title>
+  <style>
+    body { font-family: sans-serif; }
+    #search-container { margin-bottom: 20px; display: flex; align-items: center; }
+    #search-container label {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 8px;
+      box-sizing: border-box;
+      width: 20%;
+      margin-right: 10px;
+      text-align: center;
+    }
+    #search-container input[type="number"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      width: 80%;
+    }
+    #results-container { border: 1px solid #ccc; padding: 10px; display: none; }
+    .error { color: red; }
+    .success { color: green; font-weight: bold; } /* Gaya untuk pesan sukses */
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #367c39;
+    }
+  </style>
+</head>
+<body>
+  <div id="search-container">
+    <label for="keyword">No:</label>
+    <input type="number" id="keyword" name="keyword" placeholder="Masukkan 16 digit" minlength="16" maxlength="16">
+  </div>
+  <div><button onclick="cariFile()">Cari</button></div>
+
+  <div id="results-container">
+    <p id="file-name"></p>
+    <p id="file-link"></p>
+    <p id="success-message" class="success"></p> <p id="error-message" class="error"></p>
+  </div>
+
+  <script>
+    const resultsContainer = document.getElementById('results-container');
+    const fileNameElement = document.getElementById('file-name');
+    const fileLinkElement = document.getElementById('file-link');
+    const errorMessageElement = document.getElementById('error-message');
+    const successMessageElement = document.getElementById('success-message'); // Mendapatkan elemen pesan sukses
+
+    function cariFile() {
+      const keyword = document.getElementById('keyword').value;
+      if (!keyword.trim()) {
+        errorMessageElement.textContent = "Masukkan kata kunci.";
+        resultsContainer.style.display = 'none';
+        successMessageElement.textContent = ''; // Kosongkan pesan sukses jika ada error
+        return;
+      }
+
+      // PASTIKAN ANDA MENGGANTI URL DI BAWAH INI DENGAN URL APLIKASI WEB ANDA YANG SEBENARNYA
+      const webAppUrl = 'https://script.google.com/macros/s/AKfycbxCA7giAcXSxQH5AH8ohGX99fFh0iPqfPfUmcS39bxQ0ystHBshB5M6XWsAlNA9TjlYuQ/exec?q=' + encodeURIComponent(keyword);
+
+      fetch(webAppUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            errorMessageElement.textContent = data.error;
+            resultsContainer.style.display = 'block';
+            fileNameElement.textContent = '';
+            fileLinkElement.textContent = '';
+            successMessageElement.textContent = ''; // Kosongkan pesan sukses jika ada error
+          } else {
+            errorMessageElement.textContent = '';
+            fileNameElement.textContent = data["Nama File"];
+            fileLinkElement.innerHTML = '<button onclick="window.open(\'' + data["Tautan"] + '\', \'_blank\')">Buka File</button>';
+            successMessageElement.textContent = "SELAMAT ANDA LULUS, Kelulusan ini bukan akhir, tapi awal petualangan besarmu dengan banyak kesempatan. Teruslah belajar dari setiap pengalaman, karena hidup tidak pernah berhenti mengajari."; // Tampilkan pesan sukses
+            resultsContainer.style.display = 'block';
+          }
+        })
+        .catch(error => {
+          errorMessageElement.textContent = 'Terjadi kesalahan saat menghubungi server.';
+          resultsContainer.style.display = 'block';
+          fileNameElement.textContent = '';
+          fileLinkElement.textContent = '';
+          successMessageElement.textContent = ''; // Kosongkan pesan sukses jika ada error
+          console.error('Error:', error);
+        });
+    }
+  </script>
+</body>
+</html>
